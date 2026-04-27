@@ -1,0 +1,39 @@
+svg{
+    /*background:gray;*/
+    display: block;
+    margin: auto;
+}
+
+/* Estilo base para todos los círculos de nodo */
+.node circle {
+    fill: #fff;
+    stroke: #999;
+    stroke-width: 2px;
+}
+
+/* Cuando el padre es .clickable */
+.node.clickable circle {
+    fill: #4CAF50 !important;
+    stroke: #2e7d32;
+    stroke-width: 3px;
+    cursor: pointer;
+}
+
+/* Cuando el padre es .non-cickable (manteniendo tu errata de la 'i') */
+.node.non-cickable circle {
+    fill: #fff;
+    stroke: #ccc;
+    stroke-width: 2px;
+}
+
+/* Hover solo para los clickables */
+.node.clickable:hover circle {
+    fill: #66bb6a !important;
+}
+
+/* Estilo para los links (asegúrate de que esto exista) */
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+}

@@ -1,0 +1,38 @@
+{
+  "states": [
+    {
+      "id": 0,
+      "assignment": {
+        "p": true,
+        "q": false
+      },
+      "successors": [
+        {
+          "agent": "a",
+          "target": 1
+        },
+        {
+          "agent": "b",
+          "target": 0
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "assignment": {
+        "p": false,
+        "q": true
+      },
+      "successors": [
+        {
+          "agent": "a",
+          "target": 0
+        },
+        {
+          "agent": "b",
+          "target": 1
+        }
+      ]
+    }
+  ]
+}

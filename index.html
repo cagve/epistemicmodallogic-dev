@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>
+			Epistemic Logic Suite
+		</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/tree.css">
+		<link rel="stylesheet" href="css/app.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">'
+		<!-- <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+	</head>
+	<body>
+		<div id="page-container">
+			<a href="https://github.com/cagve/epistemicmodallogic">
+				<img class="github-link" src="img/blacktocat-32.png" title="Fork me on GitHub"> </a>
+			<h1>
+				Epistemic Logic Suite
+			</h1>
+			<section id="app">
+				<div id="mode-select" class="btn-group">
+					<button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)"> <i class="icon-pencil icon-white"> </i>
+						Edit Model
+					</button>
+					<button class="btn btn-primary" onclick="setAppMode(MODE.EVAL)"> <i class="icon-eye-open icon-white"> </i>
+						Evaluate Formula
+					</button>
+					<button class="btn btn-primary" onclick="setAppMode(MODE.TREE)"> <i class="icon-eye-open icon-white"> </i>
+						Tableau
+					</button>
+				</div>
+				<div id="app-body">
+					<div class="panel tab-content">
+						<div id="edit-pane" class="tab-pane active">
+							<div class="agent-btns">
+								Current agent:
+								<br>
+								<div class="btn-group">
+									<button class="btn btn-secondary active" onclick="setCurrentAgent(0)">a</button> 
+									<button class="btn btn-secondary" onclick="setCurrentAgent(1)"> b </button>
+									<button class="btn btn-secondary" onclick="setCurrentAgent(2)"> c </button>
+									<button class="btn btn-secondary" onclick="setCurrentAgent(3)"> d </button>
+									<button class="btn btn-secondary" onclick="setCurrentAgent(4)"> e </button>
+								</div>
+							</div>
+							<div class="var-count mt-3">
+								Number of propositional variables:
+								<br>
+								<div class="btn-group">
+									<button class="btn btn-secondary" onclick="setVarCount(1)"> 1 </button>
+									<button class="btn btn-secondary active" onclick="setVarCount(2)"> 2 </button>
+									<button class="btn btn-secondary" onclick="setVarCount(3)"> 3 </button>
+									<button class="btn btn-secondary" onclick="setVarCount(4)"> 4 </button>
+									<button class="btn btn-secondary" onclick="setVarCount(5)"> 5 </button>
+								</div>
+							</div>
+							<div class="alert alert-info">
+								<div class="selected-node-id">
+									No world selected
+								</div>
+								<table class="propvars inactive">
+									<tbody>
+										<tr class="">
+											<td class="var-name">
+												p:
+											</td>
+											<td class="var-value">
+												<div class="btn-group">
+													<button class="btn btn-small btn-success" onclick="setVarForSelectedNode(0,true)"> True </button>
+													<button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(0,false)"> False </button>
+												</div>
+											</td>
+										</tr>
+										<tr class="">
+											<td class="var-name">
+												q:
+											</td>
+											<td class="var-value">
+												<div class="btn-group">
+													<button class="btn btn-small btn-success" onclick="setVarForSelectedNode(1,true)"> True </button>
+													<button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(1,false)"> False </button>
+												</div>
+											</td>
+										</tr>
+										<tr class="inactive">
+											<td class="var-name">
+												r:
+											</td>
+											<td class="var-value">
+												<div class="btn-group">
+													<button class="btn btn-small btn-success" onclick="setVarForSelectedNode(2,true)"> True </button>
+													<button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(2,false)"> False </button>
+												</div>
+											</td>
+										</tr>
+										<tr class="inactive">
+											<td class="var-name">
+												s:
+											</td>
+											<td class="var-value">
+												<div class="btn-group">
+													<button class="btn btn-small btn-success" onclick="setVarForSelectedNode(3,true)"> True </button>
+													<button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(3,false)"> False </button>
+												</div>
+											</td>
+										</tr>
+										<tr class="inactive">
+											<td class="var-name">
+												t:
+											</td>
+											<td class="var-value">
+												<div class="btn-group">
+													<button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)"> True </button>
+													<button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)"> False </button>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div id="eval-pane" class="tab-pane">
+							<div class="eval-input">
+								Enter a formula:
+								<input type="text" id="formulaInput" placeholder="e.g., (p ->
+											 K{a}p)">
+											 <button class="btn btn-primary" onclick="evaluateFormula()"> Evaluate </button>
+											 or
+											 <button class="btn btn-dark" onclick="announceFormula()"> [📣]Announce </button>
+							</div>
+							<div class="eval-output inactive">
+							</div>
+							<div class="instructions">
+								<ul class="unstyled pl-4">
+									<li>
+										When entering a formula:
+										<ul class="pl-2">
+											<li>
+												use 
+												<code>
+													~A
+												</code>
+												for $\lnot{}A$
+											</li>
+											<li>
+												use 
+												<code>
+													(A &amp; B)
+												</code>
+												for $(A\land{}B)$
+											</li>
+											<li>
+												use 
+												<code>
+													(A | B)
+												</code>
+												for $(A\lor{}B)$
+											</li>
+											<li>
+												use 
+												<code>
+													(A -&gt; B)
+												</code>
+												for $(A\rightarrow{}B)$
+											</li>
+											<li>
+												use 
+												<code>
+													K{a,b,c}A
+												</code>
+												for $K_{a,b,c}A$
+											</li>
+											<li>
+												use 
+												<code>
+													[A]B
+												</code>
+												for $[A]B$
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div id="tree-pane" class="tab-pane">
+							<div class="tree-input d-inline-block p-2 border rounded bg-white shadow-sm">
+								<div class="input-group input-group-sm mb-2">
+									<span class="input-group-text bg-transparent border-0 fw-bold text-muted" style="font-size: 0.8rem;">
+										Formula:
+									</span>
+									<input type="text" 
+												 id="treeFormulaInput" 
+												 class="form-control border-0 bg-light" 
+												 value="K{a}~~(p&~p)"
+												 placeholder="(p -> K{a}p)"
+												 onkeydown="if (event.key === 'Enter') runxx()">
+												 <button class="btn btn-primary btn-sm rounded-1 ms-1" 
+																 onclick="runxx()">
+													 Tree
+												 </button>
+								</div>
+
+								<div class="d-flex align-items-center mb-4 ms-1">
+									<div class="form-check form-switch">
+										<div>
+											<input class="form-check-input" value="true" type="checkbox" role="switch" id="ruleTToggle" style="cursor: pointer;">
+											<label class="form-check-label text-muted" for="ruleTToggle" style="font-size: 0.75rem; margin-left: 5px;">
+												Regla T
+											</label>
+										</div>
+										<div>
+											<input class="form-check-input" value="true" type="checkbox" role="switch" id="rule4Toggle" style="cursor: pointer;">
+											<label class="form-check-label text-muted" for="rule4Toggle" style="font-size: 0.75rem; margin-left: 5px;">
+												Regla 4
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="input-group input-group-sm">
+									<div id="log-container" class="inactive">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="info-box" style="position: absolute; bottom: 10px; left: 310px; z-index: 10;">
+						<i style="color: gray;" id="checks-title">
+							loading...
+						</i>
+						<br>
+						<input type="checkbox" class="form-check-input ml-1" id="reflexive-check" disabled>
+						<label class="form-check-label ml-4" for="reflexive-check">
+							Reflexive
+						</label>
+						<br>
+						<input type="checkbox" class="form-check-input ml-1" id="symmetric-check" disabled>
+						<label class="form-check-label ml-4" for="symmetric-check">
+							Symmetric
+						</label>
+						<br>
+						<input type="checkbox" class="form-check-input ml-1" id="transitive-check" disabled>
+						<label class="form-check-label ml-4" for="transitive-check">
+							Transitive
+						</label>
+					</div>
+					<div class="graph" id="graph-container">
+					</div>
+					<div class="graph inactive" id="tree-container">
+						<button id="btn-fullscreen" class="btn btn-outline-secondary btn-sm" 
+																				style="display: none; position: absolute; top: 10px; right: 10px; z-index: 10;" 
+																				onclick="toggleFullScreen()">
+							<i id="fullscreen-icon" class="fas fa-expand"></i>
+						</button>
+					</div>
+					<div class="current-formula inactive" id="formula-container">
+					</div>
+					<div class="current-subformula inactive dropdown" id="subformula-container">
+						<button class="dropbtn"> Dropdown </button>
+					</div>
+				</div>
+			</section>
+			<section class="text-section" id="editing-info">
+				<h2>
+					Editing Instructions
+				</h2>
+				<ul class="unstyled">
+					<li class="mb-1">
+						Click in the open space to 
+						<strong>
+							add a world
+						</strong>
+					</li>
+					<li class="mb-1">
+						Drag between worlds to 
+						<strong>
+							add a transition for the current agent
+						</strong>
+					</li>
+					<li class="mb-1">
+						Ctrl-drag a world to 
+						<strong>
+							move
+						</strong>
+						graph layout
+					</li>
+					<li class="mb-1">
+						Click a world or a transition to 
+						<strong>
+							select
+						</strong>
+						it
+					</li>
+					<li class="mb-1">
+						When a world is selected:
+						<ul>
+							<li>
+								<strong>
+									R
+								</strong>
+								toggles reflexivity for the current agent
+							</li>
+							<li>
+								<strong>
+									Delete
+								</strong>
+								removes the world
+							</li>
+						</ul>
+					</li>
+					<li class="mb-1">
+						When a transition is selected:
+						<ul>
+							<li>
+								<strong>
+									L
+								</strong>
+								(eft), 
+								<strong>
+									R
+								</strong>
+								(ight), 
+								<strong>
+									B
+								</strong>
+								(oth) change direction
+							</li>
+							<li>
+								<strong>
+									Delete
+								</strong>
+								removes the transition
+							</li>
+						</ul>
+					</li>
+					<li class="mb-1">
+						Copy the URL from your browser's URL bar to share your model!
+					</li>
+				</ul>
+			</section>
+		</div>
+	</body>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$']] } });
+	</script>
+	<script type="text/javascript" async
+			src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+	</script>
+	<script src="lib/d3.min.js">
+	</script>
+	<script src="lib/formula-parser.min.js">
+	</script>
+	<script src="js/lib.js">
+	</script>
+	<script src="js/MPL.js">
+	</script>
+	<script src="js/app.js">
+	</script>
+	<script type="module" src="js/tree.js">
+	</script>
+	<script src="js/utils.js">
+	</script>
+</html>
