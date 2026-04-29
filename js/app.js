@@ -580,11 +580,7 @@ function tick() {
   });
 }
 
-function updateModel(json) { // TODO recarga a la pagina inicial. Funciona con redireccion de url.
-		if (!json){
-			json = document.getElementById("jsonModel").value
-		}
-	model.fromJSON(json);
+function updateModel() { // TODO recarga a la pagina inicial. Funciona con redireccion de url.
 	const modelString = '?model=' + model.getModelString();
 	let formulaString = '?formula=' + evalInput.select('input').node().value;
 	formulaString = formulaString.split(' ').join(''); //remove spaces
@@ -1181,7 +1177,7 @@ var modeButtons = d3.selectAll('#mode-select button'),
 function setAppMode(newMode) {
   if(newMode === MODE.EDIT ) {
 	  resetGraph();
-		setAppMode('graph')
+		setActive('graph')
 		d3.select('#info-box').style('display', 'block');
 		d3.select('#editing-info').style('display', 'block');
     // enable listeners
@@ -1204,7 +1200,11 @@ function setAppMode(newMode) {
 		currentSubformula.selectAll("*").remove();
 
   } else if(newMode === MODE.EVAL || newMode === MODE.TREE) {
-		if (newMode === MODE.EVAL) { setActive('graph')}
+
+		if (newMode === MODE.EVAL) { 
+			setActive('graph')
+		}
+
 	  resetGraph();
 		d3.select('#info-box').style('display', 'block');
     svg.classed('edit', false)
@@ -1313,6 +1313,170 @@ function toggleFullScreen() {
         });
     } else {
         document.exitFullscreen();
+    }
+}
+
+function handleRandomModel() {
+    const agents = ['a', 'b', 'c', 'd', 'e']; 
+    const varNames = ['p', 'q', 'r', 's', 't'];
+    const currentVars = varNames.slice(0, varCount || 2); 
+
+    const n_states = Math.floor(Math.random() * 5) + 2;
+    
+    const maxPossibleLinks = Math.pow(n_states, 2) * agents.length;
+    const n_links = Math.min(Math.floor(Math.random() * 6) + 3, maxPossibleLinks);
+
+    const newModel = generateRandomModel(n_states, currentVars, agents, n_links);
+
+
+    const modelString = newModel.getModelString();
+		model.loadFromModelString(modelString);
+		updateModel()
+}
+
+function generateRandomModel(numStates, propVars, agents, numLinks) {
+    const model = new MPL.Model();
+    
+    for (let i = 0; i < numStates; i++) {
+        let assignment = {};
+        propVars.forEach(v => { 
+            if (Math.random() > 0.5) assignment[v] = true; 
+        });
+        model.addState(assignment);
+    }
+
+    let possibleLinks = [];
+    for (let i = 0; i < numStates; i++) {
+        for (let j = 0; j < numStates; j++) {
+            agents.forEach(agent => {
+                possibleLinks.push({ source: i, target: j, agent: agent });
+            });
+        }
+    }
+
+    for (let i = possibleLinks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [possibleLinks[i], possibleLinks[j]] = [possibleLinks[j], possibleLinks[i]];
+    }
+
+    const linksToCreate = Math.min(numLinks, possibleLinks.length);
+    for (let k = 0; k < linksToCreate; k++) {
+        const link = possibleLinks[k];
+        model.addTransition(link.source, link.target, link.agent);
+    }
+
+    return model;
+}
+
+
+var trueNodes = [];
+var falseNodes = [];
+var currentWff = null;
+
+function testMode() {
+	var formula = evalInput.select('input').node().value;
+	formula = formula.split(',').join(''); // remove commas for parsing
+	formula = formula.split('[').join('[(');
+		formula = formula.split(']').join(')]');
+	if(!formula) {
+		evalOutput
+			.html('<div class="alert">No formula!</div>')
+			.classed('inactive', false);
+		return;
+	}
+
+	try {
+		currentWff = new MPL.Wff(formula);
+	} catch(e) {
+		evalOutput
+			.html('<div class="alert">Invalid formula!</div>')
+			.classed('inactive', false);
+		return;
+	}
+
+    trueNodes = nodes.map(node => node.id);
+    falseNodes = [];
+    renderTestUI();
+}
+
+function renderTestUI(feedback = null) {
+    const createSpan = (id) => 
+        `<span class="badge badge-info" 
+               style="cursor:pointer; margin:2px; padding:8px; font-size:1.1em;" 
+               onclick="toggleNode(${id})">$w_{${id}}$</span>`;
+
+    const htmlTrue = trueNodes.length ? trueNodes.map(createSpan).join(' ') : '$\\varnothing$';
+    const htmlFalse = falseNodes.length ? falseNodes.map(createSpan).join(' ') : '$\\varnothing$';
+
+    const formulaLatex = currentWff ? currentWff.latex() : '';
+
+    evalOutput.html(`
+        <div class="test-container">
+            ${feedback ? `<div class="alert ${feedback.type}">${feedback.msg}</div>` : ''}
+            
+            <div class="alert alert-success">
+                <p>Where is $${formulaLatex}$ true?</p>
+                <div class="mt-2">${htmlTrue}</div>
+            </div>
+            
+            <div class="alert alert-danger">
+                <p>Where is $${formulaLatex}$ false?</p>
+                <div class="mt-2">${htmlFalse}</div>
+            </div>
+
+            <button class="btn btn-primary w-100 mt-2" onclick="checkAnswers()">
+                Check
+            </button>
+        </div>
+    `).classed('inactive', false);
+
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, evalOutput.node()]);
+}
+
+function toggleNode(id) {
+    if (trueNodes.includes(id)) {
+        trueNodes = trueNodes.filter(n => n !== id);
+        falseNodes.push(id);
+    } else {
+        falseNodes = falseNodes.filter(n => n !== id);
+        trueNodes.push(id);
+    }
+    renderTestUI();
+}
+
+
+function checkAnswers() {
+    const formulaStr = evalInput.select('input').node().value;
+    if (!formulaStr) {
+        alert("Introduce una fórmula para evaluar.");
+        return;
+    }
+
+    try {
+				var formula = evalInput.select('input').node().value;
+				formula = formula.split(',').join(''); // remove commas for parsing
+				formula = formula.split('[').join('[(');
+				formula = formula.split(']').join(')]');
+        const wff = new MPL.Wff(formula);
+        let incorrectos = [];
+
+        nodes.forEach(node => {
+            const esRealmenteCierta = MPL.truth(model, node.id, wff);
+            const usuarioDijoCierta = trueNodes.includes(node.id);
+
+            if (esRealmenteCierta !== usuarioDijoCierta) {
+                incorrectos.push(`$w_{${node.id}}$`);
+            }
+        });
+
+        if (incorrectos.length === 0) {
+					alert('You are right!')
+					evaluateFormula()
+        } else {
+            renderTestUI({ type: 'alert-warning', msg: `<strong>Wrong.</strong> Check worlds: ${incorrectos.join(', ')}` });
+        }
+    } catch(e) {
+        alert("Error"+ e);
     }
 }
 

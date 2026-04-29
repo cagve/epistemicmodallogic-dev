@@ -6,8 +6,8 @@
 			Epistemic Logic Suite
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-		<link rel="stylesheet" href="css/tree.css">
 		<link rel="stylesheet" href="css/app.css">
+		<link rel="stylesheet" href="css/tree.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">'
 		<!-- <script src="https://cdn.jsdelivr.net/npm/d3@7"></script> -->
@@ -56,6 +56,11 @@
 									<button class="btn btn-secondary" onclick="setVarCount(4)"> 4 </button>
 									<button class="btn btn-secondary" onclick="setVarCount(5)"> 5 </button>
 								</div>
+							</div>
+							<div class="model-actions mt-3 m-10">
+								<button style="margin-bottom:10px;" class="btn btn-primary" onclick="handleRandomModel()"> 
+									Generate Random Model 
+								</button>
 							</div>
 							<div class="alert alert-info">
 								<div class="selected-node-id">
@@ -125,64 +130,12 @@
 						<div id="eval-pane" class="tab-pane">
 							<div class="eval-input">
 								Enter a formula:
-								<input type="text" id="formulaInput" placeholder="e.g., (p ->
-											 K{a}p)">
+								<input type="text" id="formulaInput" placeholder="e.g., (p -> K{a}p)" style="margin:10px;">
 											 <button class="btn btn-primary" onclick="evaluateFormula()"> Evaluate </button>
-											 or
-											 <button class="btn btn-dark" onclick="announceFormula()"> [📣]Announce </button>
+											 <button class="btn btn-dark" onclick="announceFormula()"> Announce </button>
+											 <button class="btn btn-dark" onclick="testMode()"> Test </button>
 							</div>
 							<div class="eval-output inactive">
-							</div>
-							<div class="instructions">
-								<ul class="unstyled pl-4">
-									<li>
-										When entering a formula:
-										<ul class="pl-2">
-											<li>
-												use 
-												<code>
-													~A
-												</code>
-												for $\lnot{}A$
-											</li>
-											<li>
-												use 
-												<code>
-													(A &amp; B)
-												</code>
-												for $(A\land{}B)$
-											</li>
-											<li>
-												use 
-												<code>
-													(A | B)
-												</code>
-												for $(A\lor{}B)$
-											</li>
-											<li>
-												use 
-												<code>
-													(A -&gt; B)
-												</code>
-												for $(A\rightarrow{}B)$
-											</li>
-											<li>
-												use 
-												<code>
-													K{a,b,c}A
-												</code>
-												for $K_{a,b,c}A$
-											</li>
-											<li>
-												use 
-												<code>
-													[A]B
-												</code>
-												for $[A]B$
-											</li>
-										</ul>
-									</li>
-								</ul>
 							</div>
 						</div>
 						<div id="tree-pane" class="tab-pane">
@@ -205,18 +158,10 @@
 
 								<div class="d-flex align-items-center mb-4 ms-1">
 									<div class="form-check form-switch">
-										<div>
-											<input class="form-check-input" value="true" type="checkbox" role="switch" id="ruleTToggle" style="cursor: pointer;">
-											<label class="form-check-label text-muted" for="ruleTToggle" style="font-size: 0.75rem; margin-left: 5px;">
-												Regla T
-											</label>
-										</div>
-										<div>
-											<input class="form-check-input" value="true" type="checkbox" role="switch" id="rule4Toggle" style="cursor: pointer;">
-											<label class="form-check-label text-muted" for="rule4Toggle" style="font-size: 0.75rem; margin-left: 5px;">
-												Regla 4
-											</label>
-										</div>
+										<input class="form-check-input" value="true" type="checkbox" role="switch" id="ruleTToggle" style="cursor: pointer;">
+										<label class="form-check-label text-muted" for="ruleTToggle" style="font-size: 0.75rem; margin-left: 5px;">
+											Regla T
+										</label>
 									</div>
 								</div>
 
@@ -262,6 +207,72 @@
 						<button class="dropbtn"> Dropdown </button>
 					</div>
 				</div>
+			</section>
+			<section class="text-section" id="syntax">
+				<h2> Syntax </h2>
+				<ul class="unstyled pl-4">
+					<li>
+						When entering a formula:
+						<ul class="pl-2">
+							<li>
+								use 
+								<code>
+									~A
+								</code>
+								for $\lnot{}A$
+							</li>
+							<li>
+								use 
+								<code>
+									(A &amp; B)
+								</code>
+								for $(A\land{}B)$
+							</li>
+							<li>
+								use 
+								<code>
+									(A | B)
+								</code>
+								for $(A\lor{}B)$
+							</li>
+							<li>
+								use 
+								<code>
+									(A -&gt; B)
+								</code>
+								for $(A\rightarrow{}B)$
+							</li>
+							<li>
+								use 
+								<code>
+									K{a,b,c}A
+								</code>
+								for $K_{a,b,c}A$
+							</li>
+							<li>
+								use 
+								<code>
+									D{a,b,c}A
+								</code>
+								for $D_{a,b,c}A$
+							</li>
+							<li>
+								use 
+								<code>
+									C{a,b,c}A
+								</code>
+								for $C_{a,b,c}A$
+							</li>
+							<li>
+								use 
+								<code>
+									[A]B
+								</code>
+								for $[A]B$
+							</li>
+						</ul>
+					</li>
+				</ul>
 			</section>
 			<section class="text-section" id="editing-info">
 				<h2>
@@ -341,6 +352,19 @@
 					</li>
 				</ul>
 			</section>
+			<section class="text-section" id="about-project">
+				<h2>About this project</h2>
+				<p>
+				Epistemic Model Suite is being developed by Carlos Aguilera Ventura. 
+				The model-checking part, as well as the main interface, is a fork of the open source project 
+				<a href="https://github.com/vezwork/modallogic" target="_blank">Dynamic Epistemic Logic</a> 
+				by Elliot Evans (which is instead based on 
+				<a href="https://github.com/rkirsling/modallogic" target="_blank">Modal Logic Playground</a>, 
+				by Ross Kirsling).
+				</p>
+			</section>
+
+
 		</div>
 	</body>
 	<script type="text/x-mathjax-config">

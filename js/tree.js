@@ -42,7 +42,7 @@ class Node {
 			node = new Node(id, formula, label, this)
 			this.left = node
 		}else{
-			return this.left.addSingleChild(id, formula, label)
+			return	this.left.addSingleChild(id, formula, label)
 		}
 		return node;
 	}
@@ -202,11 +202,9 @@ class Tableau {
 			const formula2 = new MPL.Wff(MPL._jsonToASCII(formula.disj[1]))
 			this.addDoubleExtension(formula1,formula2, node);
 		}else if(formula.kno_start){  
-			var formulaTerm  = new MPL.Wff(MPL._jsonToASCII(formula));
 			var term  = new MPL.Wff(MPL._jsonToASCII(formula.kno_start.group_end[1]));
 			const leafs = this.getLeafs(node);
 			const isTActive = document.getElementById('ruleTToggle').checked;
-			const is4Active = document.getElementById('rule4Toggle').checked;
 			leafs.forEach(leaf => {
 				const branch = this.getBranchFromLeaf(leaf)
 				const exts = branch.getSimpleExtensions(node.label, isTActive) // If t Active simple extension add current extension
@@ -216,12 +214,7 @@ class Tableau {
 				exts.forEach(label =>{
 					var newId = parseInt(leaf.id + '1');
 					let newNode = leaf.addSingleChild(newId,term,label);
-					this.addAvailableNode(newNode) 
-					if (is4Active) {  // REGLA 4
-						var newId2 = parseInt(newId + '1');
-						let newNode2 = leaf.addSingleChild(newId2, formulaTerm, label);
-						this.addAvailableNode(newNode2) 
-					}
+					this.addAvailableNode(newNode)
 				})
 			});
 		} else if(formula.neg){
@@ -772,7 +765,6 @@ function rclick(event, d) {
 }
 
 
-const isTActive = document.getElementById('ruleTToggle').checked;
 let maxLabel = 150;
 let duration = 500;
 let radius = 5;
@@ -789,7 +781,13 @@ function runxx(){
 	logger.clearLogs();
 	d3.select("#tree-container").select("svg").remove();
 	const formula = document.getElementById('treeFormulaInput').value;
-	const f = new MPL.Wff(formula);
+	try {
+		new MPL.Wff(formula);
+	} catch (error) {
+		alert("Syntax error: " + error.message);
+		return 
+	}
+
 	const tableau = new Tableau(formula);
 	const isTActive = document.getElementById('ruleTToggle').checked;
 	const msg = isTActive ? "Running Tableau for T" : "Running Tableau for K";
@@ -806,7 +804,7 @@ function runxx(){
 	}
 
 
-	
+
 	svgBase = d3.select("#tree-container")
 		.append("svg")
 		.attr("width", "100%")
@@ -818,11 +816,11 @@ function runxx(){
 	mainGroup = svgBase.append("g");
 	linkGroup = mainGroup.append("g")
 		.attr("class", "tree")
-    .attr("class", "links-layer")
-    .attr("transform", `translate(0, ${maxLabel})`);
+		.attr("class", "links-layer")
+		.attr("transform", `translate(0, ${maxLabel})`);
 
 	svg = mainGroup.append("g")
-        .attr("transform", `translate(0, ${maxLabel})`);
+		.attr("transform", `translate(0, ${maxLabel})`);
 
 	// Set up tree layout
 	tree = d3.tree().size([width, height - maxLabel * 2]);
@@ -856,8 +854,8 @@ function update(source) {
 		.data(nodes, d => d.id || (d.id = ++i));
 
 	const nodeEnter = node.enter().append("g")
-    .attr("class", d => "node-tableau " + (currentTableau.isAvailable(d.id) ? "clickable" : "non-clickable"))
-    .attr("transform", d => `translate(${source.x0},${source.y0})`);
+		.attr("class", d => "node-tableau " + (currentTableau.isAvailable(d.id) ? "clickable" : "non-clickable"))
+		.attr("transform", d => `translate(${source.x0},${source.y0})`);
 
 	nodeEnter.append("circle")
 		.attr("r", 0); 
@@ -877,17 +875,17 @@ function update(source) {
 		.attr("transform", d => `translate(${d.x},${d.y})`);
 
 	nodeUpdate.select("circle")
-    .attr("r", d => computeRadius(d.data))
-    // .attr("class", d => currentTableau.isAvailable(d.id) ? "node-circle-active" : "node-circle-disabled");
-		.attr("class", d => {
-			if (!d.children && !d._children) {
-				const leafs = currentTableau.getClosedLeafs().map((leaf) => leaf.id)
-				const isClosed = leafs.includes(Number(d.id))
-				if (isClosed)  return "close-leaf";
-				if (!isClosed) return "open-leaf"
-			}
-			return currentTableau.isAvailable(d.id) ? "node-circle-active" : "node-circle-disabled";
-		});
+		.attr("r", d => computeRadius(d.data))
+	// .attr("class", d => currentTableau.isAvailable(d.id) ? "node-circle-active" : "node-circle-disabled");
+	.attr("class", d => {
+		if (!d.children && !d._children) {
+			const leafs = currentTableau.getClosedLeafs().map((leaf) => leaf.id)
+			const isClosed = leafs.includes(Number(d.id))
+			if (isClosed)  return "close-leaf";
+			if (!isClosed) return "open-leaf"
+		}
+		return currentTableau.isAvailable(d.id) ? "node-circle-active" : "node-circle-disabled";
+	});
 
 	nodeUpdate.select("text").style("fill-opacity", 1);
 
@@ -932,13 +930,13 @@ function update(source) {
 
 
 export {
-  Node,
-  Tableau,
-  Branch,
-  Label,
-  Logger,
+	Node,
+	Tableau,
+	Branch,
+	Label,
+	Logger,
 	runxx,
-  toD3
+	toD3
 };
 
 window.Node = Node;

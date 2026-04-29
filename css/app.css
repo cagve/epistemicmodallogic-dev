@@ -149,6 +149,7 @@ table.propvars td.var-name {
 	bottom: 0;
 	padding-top: 20px;
 	margin-top: 20px;
+	font-size: 14px;
 }
 
 .instructions > ul {
@@ -203,7 +204,7 @@ svg.edit:not(.active):not(.ctrl) {
 }
 
 path.link {
-	/* fill: none; */
+	fill: none !important; 
 	stroke-width: 3px;
 	cursor: default;
 }
