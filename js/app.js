@@ -1444,7 +1444,6 @@ function toggleNode(id) {
     renderTestUI();
 }
 
-
 function checkAnswers() {
     const formulaStr = evalInput.select('input').node().value;
     if (!formulaStr) {
@@ -1479,4 +1478,3 @@ function checkAnswers() {
         alert("Error"+ e);
     }
 }
-
