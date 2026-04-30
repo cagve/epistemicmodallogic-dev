@@ -241,6 +241,7 @@ class Tableau {
 					while (flag) {
 						count += 1
 						newLabel = node.label.addExtension(agents, count.toString())
+						flag = labels.includes(newLabel.simplify());
 
 					}
 					let newId = parseInt(leaf.id + '1');
