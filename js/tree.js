@@ -202,6 +202,7 @@ class Tableau {
 			const formula2 = new MPL.Wff(MPL._jsonToASCII(formula.disj[1]))
 			this.addDoubleExtension(formula1, formula2, node);
 		} else if (formula.kno_start) {
+			console.log("KNOW START")
 			var currentWff = new MPL.Wff(MPL._jsonToASCII(formula));
 			var term = new MPL.Wff(MPL._jsonToASCII(formula.kno_start.group_end[1]));
 			const leafs = this.getLeafs(node);
@@ -218,11 +219,12 @@ class Tableau {
 					let newNode = leaf.addSingleChild(newId, term, label);
 					this.addAvailableNode(newNode)
 					if (is4Active) {
-						var new4Id = newId = parseInt(newId + '1');
-						let new4Node = leaf.addSingleChild(new4Id, currentWff, label);
-						this.addAvailableNode(new4Node)
+						if (!label.isInBase(currentWff, branch)) {
+							var new4Id = newId = parseInt(newId + '1');
+							let new4Node = leaf.addSingleChild(new4Id, currentWff, label);
+							this.addAvailableNode(new4Node)
+						}
 					}
-
 				})
 
 			});
@@ -245,6 +247,7 @@ class Tableau {
 					}
 					let newId = parseInt(leaf.id + '1');
 					let newNode = leaf.addSingleChild(newId, f1, newLabel)
+					console.log("HOLA")
 					if (branch.isSuplerflous(newLabel)) {
 						console.log("No node needed bc is superflous")
 						return
@@ -607,6 +610,14 @@ class Label {
 		let l2simp = l2.simplify()
 		return l1simp.length + 1 === l2simp.length && l1.isSublabel(l2);
 	}
+
+	isInBase(formula, branch) {
+		const baseFormulas = this.getBase(branch);
+		return baseFormulas.some(f => {
+			if (f.ascii() === formula.ascii()) return true;
+			return false;
+		});
+	}
 }
 
 class Branch {
@@ -678,7 +689,6 @@ class Branch {
 		const filtered = labelSet.filter((x) => x.isSimpleExtension(label))
 		return filtered;
 	}
-
 
 }
 
